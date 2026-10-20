@@ -41,7 +41,7 @@ except ImportError:
 
 SCRIPT_NAME = "hlmon"
 SCRIPT_AUTHOR = "deese"
-SCRIPT_VERSION = "0.15"
+SCRIPT_VERSION = "0.16"
 SCRIPT_LICENSE = "GPL3"
 SCRIPT_DESC = "Highlight monitor with line selector and log context viewer"
 
@@ -295,7 +295,11 @@ def print_cb(data, buffer, date, tags, displayed, highlight, prefix, message):
     tag_list = tags.split(",")
     if "self_msg" in tag_list:
         return weechat.WEECHAT_RC_OK
-    is_private = "notify_private" in tag_list and opt("privates") == "on"
+    is_private_buffer = weechat.buffer_get_string(buffer, "localvar_type") == "private"
+    if is_private_buffer and opt("privates") != "on":
+        # WeeChat flags messages in private buffers as highlights too
+        return weechat.WEECHAT_RC_OK
+    is_private = "notify_private" in tag_list
     if not (int(highlight) or is_private):
         return weechat.WEECHAT_RC_OK
 
